@@ -162,8 +162,11 @@ math-field.casillas::part(virtual-keyboard-toggle) { display: none; }
 .g-turn .card { border: 0; box-shadow: none; padding: 0; margin: 0; background: transparent; }
 .fig { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 10px; }
 .fig svg { width: 100%; height: auto; display: block; }
+.figbox { position: relative; width: 100%; height: 0; }
+.figbox svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.flbl { position: absolute; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1; color: #18212f; font-size: clamp(13px, 2.6vw, 20px); pointer-events: none; }
 .fig .cap { font-size: 14px; color: var(--ink-2); margin: 6px 4px 2px; }
-.lbl { font-family: KaTeX_Main, "Times New Roman", serif; font-size: 20px; line-height: 1; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: #18212f; }
+/* .lbl (sin uso) */ .lbl { font-family: KaTeX_Main, "Times New Roman", serif; font-size: 20px; line-height: 1; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: #18212f; }
 .explore { margin-top: 10px; display: grid; gap: 6px; }
 .explore input[type=range] { width: 100%; accent-color: var(--accent); height: 30px; }
 
@@ -5498,7 +5501,7 @@ Object.assign(exports, MathLive); Object.defineProperty(exports, '__esModule', {
       else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
       else el.setAttribute(k, v === true ? '' : v);
     }
-    for (const c of kids.flat()) { if (c == null || c === false) continue; el.append(c.nodeType ? c : document.createTextNode(c)); }
+    for (const c of kids.flat(Infinity)) { if (c == null || c === false) continue; el.append(c.nodeType ? c : document.createTextNode(c)); }
     return el;
   }
 
@@ -5574,27 +5577,36 @@ Object.assign(exports, MathLive); Object.defineProperty(exports, '__esModule', {
   }
 
   // ---------------------------------------------------------- figuras SVG
-  function fo(x, y, w, hgt, tex) {
-    return '<foreignObject x="' + x + '" y="' + y + '" width="' + w + '" height="' + hgt + '"><div xmlns="http://www.w3.org/1999/xhtml" class="lbl">' + K(tex) + '</div></foreignObject>';
+  // Etiquetas como HTML superpuesto: Safari no escala bien el HTML incrustado dentro de un SVG
+  let LBL = null;
+  function fo(x, y, w, hgt, tex) { LBL.push([x, y, w, hgt, tex]); return ''; }
+  function wrapFig(vw, vh, inner, aria) {
+    const pct = (v, t) => (v / t * 100).toFixed(3) + '%';
+    const labels = LBL.map(([x, y, w, hh, tex]) => '<div class="flbl" style="left:' + pct(x, vw) + ';top:' + pct(y, vh) + ';width:' + pct(w, vw) + ';height:' + pct(hh, vh) + '">' + K(tex) + '</div>').join('');
+    LBL = null;
+    return '<div class="figbox" style="padding-bottom:' + pct(vh, vw) + '"><svg viewBox="0 0 ' + vw + ' ' + vh + '" role="img" aria-label="' + aria + '">' + inner + '</svg>' + labels + '</div>';
   }
   function figSuma(b) {
     const X = 170, B = Math.max(34, Math.min(130, 9 * b)), o = 34, W = X + B;
     const r = (x, y, w, hh, f) => '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" fill="' + f + '" stroke="#18212f" stroke-width="1.5"/>';
-    let s = '<svg viewBox="0 0 ' + (W + o + 6) + ' ' + (W + o + 6) + '" role="img" aria-label="Modelo de áreas del cuadrado de una suma">';
+    LBL = [];
+    let s = '';
     s += r(o, o, X, X, 'var(--region-a)') + r(o + X, o, B, X, 'var(--region-ab)') + r(o, o + X, X, B, 'var(--region-ab)') + r(o + X, o + X, B, B, 'var(--region-b)');
-    s += fo(o, o, X, X, 'x^2') + fo(o + X, o, B, X, b + 'x') + fo(o, o + X, X, B, b + 'x') + fo(o + X, o + X, B, B, b + '^2');
+    const bx = b === 1 ? 'x' : b + 'x';
+    s += fo(o, o, X, X, 'x^2') + fo(o + X, o, B, X, bx) + fo(o, o + X, X, B, bx) + fo(o + X, o + X, B, B, b + '^2');
     s += fo(o, 0, X, o, 'x') + fo(o + X, 0, B, o, String(b)) + fo(0, o, o, X, 'x') + fo(0, o + X, o, B, String(b));
-    return s + '</svg>';
+    return wrapFig(W + o + 6, W + o + 6, s, 'Modelo de áreas del cuadrado de una suma');
   }
   function figDiferencia(b) {
     const X = 250, B = 66, o = 34, L = 70;   // L: margen izquierdo para las etiquetas
     const r = (x, y, w, hh, f) => '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" fill="' + f + '" stroke="#18212f" stroke-width="1.5"/>';
-    let s = '<svg viewBox="0 0 ' + (L + X + 6) + ' ' + (X + o + 34) + '" role="img" aria-label="Modelo de áreas del cuadrado de una diferencia">';
+    LBL = [];
+    let s = '';
     s += r(L, o, X - B, B, 'var(--region-ab)') + r(L + X - B, o + B, B, X - B, 'var(--region-ab)') + r(L + X - B, o, B, B, 'var(--region-b)') + r(L, o + B, X - B, X - B, 'var(--region-a)');
     s += '<rect x="' + L + '" y="' + o + '" width="' + X + '" height="' + X + '" fill="none" stroke="#18212f" stroke-width="2.5"/>';
     s += fo(L, o + B, X - B, X - B, '(x-' + b + ')^2') + fo(L, o, X - B, B, b + 'x') + fo(L + X - B, o + B, B, X - B, b + 'x') + fo(L + X - B, o, B, B, b + '^2');
     s += fo(L, 0, X, o, 'x') + fo(0, o + B, L, X - B, 'x-' + b) + fo(0, o, L, B, String(b)) + fo(L, o + X, X - B, 32, 'x-' + b) + fo(L + X - B, o + X, B, 32, String(b));
-    return s + '</svg>';
+    return wrapFig(L + X + 6, X + o + 34, s, 'Modelo de áreas del cuadrado de una diferencia');
   }
 
 

@@ -5523,10 +5523,10 @@ Object.assign(exports, MathLive); Object.defineProperty(exports, '__esModule', {
   const KB_LIBRE = {
     label: 'Álgebra', displayEditToolbar: false, displayShiftedKeycaps: false,
     rows: [
-      [k('x'), k('y'), k('a'), k('b'), '[separator-5]', k('7'), k('8'), k('9'), k('('), k(')')],
-      [k('m'), k('n'), k('t'), k('z'), '[separator-5]', k('4'), k('5'), k('6'), k('#@^{#?}', '@@EXP@@', { tooltip: 'Exponente' }), k('\\frac{#0}{#0}', '@@FRAC@@', { tooltip: 'Fracción' })],
-      [k('+'), k('-'), k('\\cdot'), '[separator-5]', '[separator-5]', k('1'), k('2'), k('3'), { label: '[backspace]', width: 2 }],
-      ['[left]', '[right]', '[separator-5]', '[separator-5]', '[separator-5]', k('0'), k('.'), '[separator-5]', { label: '[hide-keyboard]', width: 2 }]
+      [k('x'), k('y'), k('z'), k('a'), k('b'), '[separator-5]', k('7'), k('8'), k('9'), k('('), k(')')],
+      [k('c'), k('m'), k('n'), k('t'), '[separator]', '[separator-5]', k('4'), k('5'), k('6'), k('#@^{#?}', '@@EXP@@', { tooltip: 'Exponente' }), k('\\frac{#0}{#0}', '@@FRAC@@', { tooltip: 'Fracción' })],
+      [k('+'), k('-'), k('\\cdot'), '[separator]', '[separator]', '[separator-5]', k('1'), k('2'), k('3'), { label: '[backspace]', width: 2 }],
+      ['[left]', '[right]', '[separator]', '[separator]', '[separator]', '[separator-5]', k('0'), k('.'), '[separator]', { label: '[hide-keyboard]', width: 2 }]
     ]
   };
   const KB_CAS = {
@@ -5535,7 +5535,7 @@ Object.assign(exports, MathLive); Object.defineProperty(exports, '__esModule', {
       [k('7'), k('8'), k('9'), '[separator-5]', { label: '[backspace]', width: 2 }],
       [k('4'), k('5'), k('6'), '[separator-5]', k('-', null, { width: 2 })],
       [k('1'), k('2'), k('3'), '[separator-5]', k('\\frac{#0}{#0}', '@@FRAC@@', { width: 2, tooltip: 'Fracción' })],
-      ['[left]', k('0'), '[right]', '[separator-5]', { label: '<span style="font-size:14px;font-weight:600">Siguiente</span>', class: 'action', command: 'moveToNextPlaceholder', width: 2 }]
+      [k('0'), k('.'), '[left]', '[separator-5]', { label: '<span style="font-size:14px;font-weight:600">Siguiente</span>', class: 'action', command: 'moveToNextPlaceholder', width: 2 }]
     ]
   };
   function texLabels(layout) {
